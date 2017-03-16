@@ -111,15 +111,18 @@ class GoProCamera:
             r = requests.get(url, stream=True, timeout=self._jpegGetTimeout)
             # Handle the success condition
             if r.status_code == 200:
-                with open(destPath, 'wb') as f:
-                    r.raw.decode_content = True
-                    try:
-                        shutil.copyfileobj(r.raw, f)
-                        success = True
-                    except shutil.ReadError as excp:
-                        print("CopyFileObj - read exception", excp)
-                    except shutil.Error as excp:
-                        print("CopyFileObj - other exception", excp)
+                try:
+                    with open(destPath, 'wb') as f:
+                        r.raw.decode_content = True
+                        try:
+                            shutil.copyfileobj(r.raw, f)
+                            success = True
+                        except shutil.ReadError as excp:
+                            print("CopyFileObj - read exception", excp)
+                        except shutil.Error as excp:
+                            print("CopyFileObj - other exception", excp)
+                except (OSError, IOError) as excp:
+                    print("File system error", excp)
             if success:
                 print("Copy", srcPath, "to", destPath, "result", r.status_code)
                 # Delete the last file if it exists

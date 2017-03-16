@@ -11,6 +11,9 @@ timelapseInterval = 30.0
 jpegGetTimeout = 30.0
 otherGetTimeout = 5.0
 
+print("GoProTimelapse, Rob Dobson 2017, Sleeping for 60 seconds ...")
+time.sleep(60)
+
 cam = GoProCamera('10.5.5.9', "password", jpegGetTimeout, otherGetTimeout)
 print("Camera status", cam.status())
 print("Current files", cam.listJpegs(jpegFolder))
