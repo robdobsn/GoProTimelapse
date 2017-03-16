@@ -1,5 +1,11 @@
 from GoProCamera import GoProCamera
 import time, datetime
+import ConfigParser
+
+# Get config
+config = ConfigParser.ConfigParser()
+config.read("config.ini")
+cameraPassword = config["Camera"]["Password"]
 
 # Note that these must not have a trailing /
 jpegFolder = "/DCIM/100GOPRO"
@@ -14,7 +20,7 @@ otherGetTimeout = 5.0
 print("GoProTimelapse, Rob Dobson 2017, Sleeping for 60 seconds ...")
 time.sleep(60)
 
-cam = GoProCamera('10.5.5.9', "password", jpegGetTimeout, otherGetTimeout)
+cam = GoProCamera('10.5.5.9', cameraPassword, jpegGetTimeout, otherGetTimeout)
 print("Camera status", cam.status())
 print("Current files", cam.listJpegs(jpegFolder))
 
