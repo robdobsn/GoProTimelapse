@@ -1,9 +1,9 @@
 from GoProCamera import GoProCamera
 import time, datetime
-import ConfigParser
+import configparser
 
 # Get config
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read("config.ini")
 cameraPassword = config["Camera"]["Password"]
 
