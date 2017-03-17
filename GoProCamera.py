@@ -102,16 +102,6 @@ class GoProCamera:
             print("List Folders - request exception", excp)
         return rslt
 
-    def _copyfile(self, src, dst):
-        length = 16 * 1024
-        with open(src, 'rb') as fsrc:
-            with open(dst, 'wb') as fdst:
-                while True:
-                    buf = fsrc.read(length)
-                    if not buf:
-                        break
-                    fdst.write(buf)
-
     def getPhoto(self, srcPath, destPath, deleteLastAfterCopy=False):
         # Copy the file
         url = self._webUrl + ("" if srcPath == None else srcPath)
@@ -124,7 +114,11 @@ class GoProCamera:
                 r.raw.decode_content = True
                 try:
                     with open(destPath, 'wb') as f:
-                        self._copyfile(r.raw, f)
+                        while True:
+                            buf = r.raw.read(length)
+                            if not buf:
+                                break
+                            f.write(buf)
                         success = True
                 except (OSError, IOError) as excp:
                     print("File system error", excp)
