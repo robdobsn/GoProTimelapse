@@ -114,15 +114,9 @@ class GoProCamera:
                 r.raw.decode_content = True
                 imgData = r.raw
                 try:
-                    with open(destPath, 'wb') as f:
-                        try:
-                            shutil.copyfileobj(imgData, f)
-                            success = True
-                        except shutil.ReadError as excp:
-                            print("CopyFileObj - read exception", excp)
-                        except shutil.Error as excp:
-                            print("CopyFileObj - other exception", excp)
-
+                    with f = open(destPath, 'wb') as f:
+                        f.write(imgData)
+                        success = True
                 except (OSError, IOError) as excp:
                     print("File system error", excp)
             if success:
