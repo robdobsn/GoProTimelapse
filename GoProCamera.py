@@ -114,7 +114,7 @@ class GoProCamera:
                 r.raw.decode_content = True
                 imgData = r.raw
                 try:
-                    with f = open(destPath, 'wb') as f:
+                    with open(destPath, 'wb') as f:
                         f.write(imgData)
                         success = True
                 except (OSError, IOError) as excp:
