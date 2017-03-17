@@ -115,7 +115,7 @@ class GoProCamera:
                 try:
                     with open(destPath, 'wb') as f:
                         while True:
-                            buf = r.raw.read(length)
+                            buf = r.raw.read(16*1024)
                             if not buf:
                                 break
                             f.write(buf)
