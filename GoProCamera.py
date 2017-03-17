@@ -102,7 +102,7 @@ class GoProCamera:
             print("List Folders - request exception", excp)
         return rslt
 
-    def _copyfile(src, dst):
+    def _copyfile(self, src, dst):
         length = 16 * 1024
         with open(src, 'rb') as fsrc:
             with open(dst, 'wb') as fdst:
