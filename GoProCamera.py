@@ -1,6 +1,7 @@
 import requests
 import re
 import shutil
+import logging
 
 class GoProCamera:
 
@@ -20,17 +21,19 @@ class GoProCamera:
                 parameter = "&p=" + cmdParam
         url = "/".join((self._apiUrl, api, method))
         url += "?t=" + self._password + parameter
-        print(url)
+        logging.debug("Accessing URL %s", url)
         try:
             r = requests.get(url, timeout=self._otherGetTimeout)
-            print("HTTP Response", r.status_code)
+            logging.debug("HTTP Response %s", r.status_code)
             return {"status_code":r.status_code, "content":r.content}
         except requests.exceptions.Timeout as excp:
-            print("ApiCall - timeout exception", excp)
+            logging.error("ApiCall - timeout exception %s", str(excp))
         except requests.exceptions.TooManyRedirects as excp:
-            print("ApiCall - tooManyRedirects exception", excp)
+            logging.critical("ApiCall - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
-            print("ApiCall - request exception", excp)
+            logging.critical("ApiCall - request exception %s", str(excp))
+        except excp:
+            logging.critical("ApiCall - Other exception %s", str(excp))            
         return {"status_code": 400, "content": []}
 
     def _cameraApi(self, method, intParam=None):
@@ -41,7 +44,7 @@ class GoProCamera:
 
     def status(self):
         r = self._bacpacApi("se")
-        print("Status - HTTP result", r["status_code"], "Content", r["content"])
+        logging.info("Status - HTTP result %s, Content %s", str(r["status_code"]), str(r["content"]))
         rslt = {"ready": False if len(r["content"])<15 else (r["content"][15] == 1)}
         rslt["bytes"] = [x for x in r["content"]]
         return rslt
@@ -79,11 +82,13 @@ class GoProCamera:
             rslt = re.findall("\>(.+.JPG)\<", r.text)
             # print("search", rslt)
         except requests.exceptions.Timeout as excp:
-            print("List Jpegs - timeout exception", excp)
+            logging.error("List Jpegs - timeout exception %s", str(excp))
         except requests.exceptions.TooManyRedirects as excp:
-            print("List Jpegs - tooManyRedirects exception", excp)
+            logging.critical("List Jpegs - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
-            print("List Jpegs - request exception", excp)
+            logging.critical("List Jpegs - request exception %s", str(excp))
+        except excp:
+            logging.critical("List Jpegs - Other exception %s", str(excp))            
         return rslt
 
     def listFolders(self, path=None):
@@ -95,17 +100,19 @@ class GoProCamera:
             rslt = re.findall("href\=\"(.+)\/\"\>", r.text)
             # print("search", rslt)
         except requests.exceptions.Timeout as excp:
-            print("List Folders - timeout exception", excp)
+            logging.error("List Folders - timeout exception %s", str(excp))
         except requests.exceptions.TooManyRedirects as excp:
-            print("List Folders - tooManyRedirects exception", excp)
+            logging.critical("List Folders - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
-            print("List Folders - request exception", excp)
+            logging.critical("List Folders - request exception %s", str(excp))
+        except excp:
+            logging.critical("List Folders - Other exception %s", str(excp))            
         return rslt
 
     def getPhoto(self, srcPath, destPath, deleteLastAfterCopy=False):
         # Copy the file
         url = self._webUrl + ("" if srcPath == None else srcPath)
-        print("Get jpeg", url)
+        logging.info("Get jpeg %s", str(url))
         try:
             success = False
             r = requests.get(url, stream=True, timeout=self._jpegGetTimeout)
@@ -119,31 +126,31 @@ class GoProCamera:
                             try:
                                 buf = r.raw.read(16*1024)
                             except excp:
-                                print("RawRead - Error", excp)
+                                logging.error("RawRead - Error %s", str(excp))
                             if not buf:
                                 break
                             f.write(buf)
                         success = True
                 except (OSError, IOError) as excp:
-                    print("CopyFile - File system error", excp)
+                    logging.error("CopyFile - File system error %s", str(excp))
                 except excp:
-                    print("CopyFile - Other exception", excp)
+                    logging.error("CopyFile - Other exception %s", str(excp))
             if success:
-                print("Copy", srcPath, "to", destPath, "result", r.status_code)
+                logging.info("Copied Ok (%s) %s to %s ", str(r.status_code)), srcPath, destPath)
                 # Delete the last file if it exists
                 if deleteLastAfterCopy:
-                    print("Deleting the last file")
+                    logging.info("Deleting the last file")
                     self.deleteLast()
             else:
-                print("Copy", srcPath, "to", destPath, "failed")
+                logging.info("Copy Failed %s to %s", srcPath, destPath)
         except requests.exceptions.Timeout as excp:
-            print("Copy - timeout exception", excp)
+            logging.error("Copy - timeout exception %s", str(excp))
         except requests.exceptions.TooManyRedirects as excp:
-            print("Copy - tooManyRedirects exception", excp)
+            logging.critical("Copy - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
-            print("Copy - request exception", excp)
+            logging.critical("Copy - request exception %s", str(excp))
         except excp:
-            print("Copy - Other exception", excp)
+            logging.critical("Copy - Other exception %s", str(excp))
 
 if __name__ == "__main__":
     cam = GoProCamera('10.5.5.9', "password")
