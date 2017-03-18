@@ -115,13 +115,19 @@ class GoProCamera:
                 try:
                     with open(destPath, 'wb') as f:
                         while True:
-                            buf = r.raw.read(16*1024)
+                            buf = None
+                            try:
+                                buf = r.raw.read(16*1024)
+                            except excp:
+                                print("RawRead - Error", excp)
                             if not buf:
                                 break
                             f.write(buf)
                         success = True
                 except (OSError, IOError) as excp:
-                    print("File system error", excp)
+                    print("CopyFile - File system error", excp)
+                except excp:
+                    print("CopyFile - Other exception", excp)
             if success:
                 print("Copy", srcPath, "to", destPath, "result", r.status_code)
                 # Delete the last file if it exists
@@ -136,6 +142,8 @@ class GoProCamera:
             print("Copy - tooManyRedirects exception", excp)
         except requests.exceptions.RequestException as excp:
             print("Copy - request exception", excp)
+        except excp:
+            print("Copy - Other exception", excp)
 
 if __name__ == "__main__":
     cam = GoProCamera('10.5.5.9', "password")
