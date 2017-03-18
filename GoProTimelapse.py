@@ -2,9 +2,11 @@ from GoProCamera import GoProCamera
 import time, datetime
 import configparser
 import logging
+from subprocess import call
 
 # Logging
-logging.basicConfig(filename="GoProTimelapse.log", level=logging.DEBUG, format='%(asctime)s %(message)s')
+#logging.basicConfig(filename="GoProTimelapse.log", level=logging.DEBUG, format='%(asctime)s %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 # Get config
 config = configparser.ConfigParser()
@@ -16,17 +18,17 @@ jpegFolder = "/DCIM/100GOPRO"
 destFolder = "/mnt/synologyScratch/timelapse"
 
 # Intervals and timeouts
-exposureTimeSecs = 0.1
+exposureTimeSecs = 0.05
 timelapseInterval = 30.0
-jpegGetTimeout = 30.0
-otherGetTimeout = 5.0
+jpegGetTimeout = 120.0
+otherGetTimeout = 60.0
 
-logging.info("GoProTimelapse, Rob Dobson 2017, Sleeping for 60 seconds ...")
-time.sleep(60)
+logging.info("GoProTimelapse, Rob Dobson 2017")
+#time.sleep(60)
 
 cam = GoProCamera('10.5.5.9', cameraPassword, jpegGetTimeout, otherGetTimeout)
-logging.info("Camera status", cam.status())
-logging.info("Current files", cam.listJpegs(jpegFolder))
+logging.info("Camera status %s", str(cam.status()))
+logging.info("Current num files %s", str(len(cam.listJpegs(jpegFolder))))
 
 curTime = datetime.datetime.now()
 
@@ -47,13 +49,13 @@ while(True):
 
     # Extract files from camera
     fileList = cam.listJpegs(jpegFolder)
-    logging.info("Current files %s", str(fileList))
+    logging.info("Current num files %s", str(len(fileList)))
     for fileName in reversed(fileList):
         srcPath = jpegFolder + "/" + fileName
         destPath = destFolder + "/" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".JPG"
         cam.getPhoto(srcPath, destPath, True)
         newFileList = cam.listJpegs(jpegFolder)
-        logging.info("Current files %s", str(newFileList))
+        logging.info("Current num files %s", str(len(newFileList)))
 
     # Delay between photos
     while(datetime.datetime.now() < curTime + datetime.timedelta(seconds=timelapseInterval)):

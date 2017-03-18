@@ -32,7 +32,7 @@ class GoProCamera:
             logging.critical("ApiCall - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
             logging.critical("ApiCall - request exception %s", str(excp))
-        except excp:
+        except BaseException as excp:
             logging.critical("ApiCall - Other exception %s", str(excp))            
         return {"status_code": 400, "content": []}
 
@@ -87,7 +87,7 @@ class GoProCamera:
             logging.critical("List Jpegs - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
             logging.critical("List Jpegs - request exception %s", str(excp))
-        except excp:
+        except BaseException as excp:
             logging.critical("List Jpegs - Other exception %s", str(excp))            
         return rslt
 
@@ -105,7 +105,7 @@ class GoProCamera:
             logging.critical("List Folders - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
             logging.critical("List Folders - request exception %s", str(excp))
-        except excp:
+        except BaseException as excp:
             logging.critical("List Folders - Other exception %s", str(excp))            
         return rslt
 
@@ -125,7 +125,7 @@ class GoProCamera:
                             buf = None
                             try:
                                 buf = r.raw.read(16*1024)
-                            except excp:
+                            except BaseException as excp:
                                 logging.error("RawRead - Error %s", str(excp))
                             if not buf:
                                 break
@@ -133,10 +133,10 @@ class GoProCamera:
                         success = True
                 except (OSError, IOError) as excp:
                     logging.error("CopyFile - File system error %s", str(excp))
-                except excp:
+                except BaseException as excp:
                     logging.error("CopyFile - Other exception %s", str(excp))
             if success:
-                logging.info("Copied Ok (%s) %s to %s ", str(r.status_code)), srcPath, destPath)
+                logging.info("Copied Ok (%s) %s to %s ", str(r.status_code), srcPath, destPath)
                 # Delete the last file if it exists
                 if deleteLastAfterCopy:
                     logging.info("Deleting the last file")
@@ -149,7 +149,7 @@ class GoProCamera:
             logging.critical("Copy - tooManyRedirects exception %s", str(excp))
         except requests.exceptions.RequestException as excp:
             logging.critical("Copy - request exception %s", str(excp))
-        except excp:
+        except BaseException as excp:
             logging.critical("Copy - Other exception %s", str(excp))
 
 if __name__ == "__main__":
